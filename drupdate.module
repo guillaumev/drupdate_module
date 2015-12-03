@@ -50,6 +50,7 @@ function drupdate_run($project) {
   if (!empty($project->field_modules_to_ignore[LANGUAGE_NONE][0]['value'])) {
     $cmd .= " -i ".$project->field_modules_to_ignore[LANGUAGE_NONE][0]['value'];
   }
+  watchdog('drupdate', 'Command executed: '.$cmd);
   $safe_cmd = escapeshellcmd($cmd);
   exec($cmd, $output, $return);
   $run = new stdClass();
