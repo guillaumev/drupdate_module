@@ -1,0 +1,4 @@
+name = Drupdate
+description = Custom module to execute drupdate on cron
+core = 7.x
+package = Drupdate

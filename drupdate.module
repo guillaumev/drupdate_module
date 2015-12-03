@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * Implements hook_cron
+ * Executes drupdate on cron
+ */
+function drupdate_cron() {
+  $query = new EntityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'project')
+    ->propertyCondition('status', NODE_PUBLISHED)
+    ->execute();
+  if (isset($result['node'])) {
+    $nids = array_keys($result['node']);
+    $projects = entity_load('node', $nids);
+    foreach ($projects as $project) {
+      // Get the latest run for this project
+      $rquery = new EntityFieldQuery();
+      $rresult = $query
+        ->entityCondition('entity_type', 'node')
+        ->entityCondition('bundle', 'run')
+        ->fieldCondition('field_project', 'target_id', $project->nid, '=')
+        ->propertyOrderBy('created', 'DESC')
+        ->range(0,1)
+        ->execute();
+      if (isset($rresult['node'])) {
+        $lr_nids = array_keys($rresult['node']);
+        $run = entity_load_single('node', $lr_nids[0]);
+        $now = time();
+        if ($now - $run->created > 24 * 3600) {
+          drupdate_run($project);
+        }
+      }
+      else {
+        drupdate_run($project);
+      }
+    }
+  }
+}
+
+function drupdate_run($project) {
+  $path = DRUPAL_ROOT.'/'.conf_path().'/libraries/drupdate/drupdate.php';
+  $cmd = "php ".$path." -o ".$project->field_owner[LANGUAGE_NONE][0]['value'] . " -r ".$project->field_repository[LANGUAGE_NONE][0]['value']." -b ".$project->field_branch[LANGUAGE_NONE][0]['value'];
+  if (!empty($project->field_modules_to_ignore[LANGUAGE_NONE][0]['value'])) {
+    $cmd .= " -i ".$project->field_modules_to_ignore[LANGUAGE_NONE][0]['value'];
+  }
+  $safe_cmd = escapeshellcmd($cmd);
+  exec($cmd, $output, $return);
+  $run = new stdClass();
+  $run->type = 'run';
+  $run->language = LANGUAGE_NONE;
+  $run->title = $project->title . ' ' . date('c');
+  $run->body[LANGUAGE_NONE][0]['value'] = implode("\n", $output);
+  $run->status = 1;
+  node_save($run);
+}
+
