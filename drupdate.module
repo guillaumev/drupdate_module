@@ -33,6 +33,9 @@ function drupdate_cron() {
         }
       }
       else {
+        // Fork the project first
+        drupdate_fork($project->field_owner[LANGUAGE_NONE][0]['value'], $project->field_repository[LANGUAGE_NONE][0]['value']);
+        // Then run it for the first time
         drupdate_run($project);
       }
     }
@@ -41,7 +44,7 @@ function drupdate_cron() {
 
 function drupdate_run($project) {
   $path = DRUPAL_ROOT.'/'.conf_path().'/libraries/drupdate/drupdate.php';
-  $cmd = "php ".$path." -o ".$project->field_owner[LANGUAGE_NONE][0]['value'] . " -r ".$project->field_repository[LANGUAGE_NONE][0]['value']." -b ".$project->field_branch[LANGUAGE_NONE][0]['value'];
+  $cmd = "php ".$path." -o drupdateio -r ".$project->field_repository[LANGUAGE_NONE][0]['value']." -b ".$project->field_branch[LANGUAGE_NONE][0]['value'];
   if (!empty($project->field_modules_to_ignore[LANGUAGE_NONE][0]['value'])) {
     $cmd .= " -i ".$project->field_modules_to_ignore[LANGUAGE_NONE][0]['value'];
   }
