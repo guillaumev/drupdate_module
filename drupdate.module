@@ -51,7 +51,7 @@ function drupdate_run($project) {
   $run->type = 'run';
   $run->language = LANGUAGE_NONE;
   $run->title = $project->title . ' ' . date('c');
-  $run->body[LANGUAGE_NONE][0]['value'] = implode("\n", $output);
+  $run->body[LANGUAGE_NONE][0]['value'] = implode("\n", $output);
   $run->status = 1;
   node_save($run);
 }
