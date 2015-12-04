@@ -19,7 +19,7 @@ function drupdate_cron() {
     foreach ($projects as $project) {
       // Get the latest run for this project
       $rquery = new EntityFieldQuery();
-      $rresult = $query
+      $rresult = $rquery
         ->entityCondition('entity_type', 'node')
         ->entityCondition('bundle', 'run')
         ->fieldCondition('field_project', 'target_id', $project->nid, '=')
