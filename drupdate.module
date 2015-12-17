@@ -53,11 +53,12 @@ function drupdate_run($project) {
   watchdog('drupdate', 'Command executed: '.$cmd);
   $safe_cmd = escapeshellcmd($cmd);
   exec($cmd, $output, $return);
+  $imploded_output = implode("\n", $output);
   $run = new stdClass();
   $run->type = 'run';
   $run->language = LANGUAGE_NONE;
   $run->title = $project->title . ' ' . date('c');
-  $run->body[LANGUAGE_NONE][0]['value'] = implode("\n", $output);
+  $run->body[LANGUAGE_NONE][0]['value'] = $imploded_output;
   $run->field_project[LANGUAGE_NONE][0]['target_id'] = $project->nid;
   $run->status = 1;
   $run->uid = 1;
