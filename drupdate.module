@@ -53,7 +53,9 @@ function drupdate_run($project) {
   watchdog('drupdate', 'Command executed: '.$cmd);
   $safe_cmd = escapeshellcmd($cmd);
   exec($cmd, $output, $return);
+  debug($output);
   $imploded_output = implode("\n", $output);
+  watchdog('drupdate', $imploded_output);
   $run = new stdClass();
   $run->type = 'run';
   $run->language = LANGUAGE_NONE;
