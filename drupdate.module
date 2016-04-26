@@ -46,15 +46,14 @@ function drupdate_cron() {
 
 function drupdate_run($project) {
   $path = DRUPAL_ROOT.'/'.conf_path().'/libraries/drupdate/drupdate.php';
-  $cmd = "php ".$path." -o drupdateio -r ".$project->field_repository[LANGUAGE_NONE][0]['value']." -b ".$project->field_branch[LANGUAGE_NONE][0]['value'];
+  $cmd = "cd /tmp; php ".$path." -o drupdateio -r ".$project->field_repository[LANGUAGE_NONE][0]['value']." -b ".$project->field_branch[LANGUAGE_NONE][0]['value']." 2>&1";
   if (!empty($project->field_modules_to_ignore[LANGUAGE_NONE][0]['value'])) {
     $cmd .= " -i ".$project->field_modules_to_ignore[LANGUAGE_NONE][0]['value'];
   }
   watchdog('drupdate', 'Command executed: '.$cmd);
   $safe_cmd = escapeshellcmd($cmd);
   exec($cmd, $output, $return);
-  debug($output);
-  $imploded_output = implode("\n", $output);
+  $imploded_output = implode("<br />", $output);
   watchdog('drupdate', $imploded_output);
   $run = new stdClass();
   $run->type = 'run';
