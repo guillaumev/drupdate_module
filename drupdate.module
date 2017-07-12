@@ -45,21 +45,19 @@ function drupdate_cron() {
 }
 
 function drupdate_run($project) {
-  $path = DRUPAL_ROOT.'/'.conf_path().'/libraries/drupdate/drupdate.php';
-  $cmd = "cd /tmp; php ".$path." -o drupdateio -r ".$project->field_repository[LANGUAGE_NONE][0]['value']." -b ".$project->field_branch[LANGUAGE_NONE][0]['value']." 2>&1";
-  if (!empty($project->field_modules_to_ignore[LANGUAGE_NONE][0]['value'])) {
-    $cmd .= " -i ".$project->field_modules_to_ignore[LANGUAGE_NONE][0]['value'];
+  $path = 'http://api.drupdate.gvj.ch/?owner=drupdateio';
+  $path .= '&repository='.$project->field_repository[LANGUAGE_NONE][0]['value'];
+  $path .= '&branch='.$project->field_branch[LANGUAGE_NONE][0]['value'];
+  if ($project->field_security[LANGUAGE_NONE][0]['value']) {
+    $path .= '&security=1';
   }
-  watchdog('drupdate', 'Command executed: '.$cmd);
-  $safe_cmd = escapeshellcmd($cmd);
-  exec($cmd, $output, $return);
-  $imploded_output = implode("<br />", $output);
-  watchdog('drupdate', $imploded_output);
+  
+  $output = file_get_contents($path);
   $run = new stdClass();
   $run->type = 'run';
   $run->language = LANGUAGE_NONE;
   $run->title = $project->title . ' ' . date('c');
-  $run->body[LANGUAGE_NONE][0]['value'] = $imploded_output;
+  $run->body[LANGUAGE_NONE][0]['value'] = $output;
   $run->field_project[LANGUAGE_NONE][0]['target_id'] = $project->nid;
   $run->status = 1;
   $run->uid = 1;
